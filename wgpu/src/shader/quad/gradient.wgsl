@@ -136,30 +136,31 @@ fn gradient(
 
 @fragment
 fn gradient_fs_main(input: GradientVertexOutput) -> @location(0) vec4<f32> {
-    let colors = array<vec4<f32>, 8>(
-        unpack_color(input.colors_1.xy),
-        unpack_color(input.colors_1.zw),
-        unpack_color(input.colors_2.xy),
-        unpack_color(input.colors_2.zw),
-        unpack_color(input.colors_3.xy),
-        unpack_color(input.colors_3.zw),
-        unpack_color(input.colors_4.xy),
-        unpack_color(input.colors_4.zw),
-    );
+    // Built element by element: an array constructor with non-constant arguments
+    // fails to compile on Mali GLES drivers (WebGL2 through ANGLE) with
+    // "S0032: no default precision defined for variable 'vec4[8]'".
+    var colors: array<vec4<f32>, 8>;
+    colors[0] = unpack_color(input.colors_1.xy);
+    colors[1] = unpack_color(input.colors_1.zw);
+    colors[2] = unpack_color(input.colors_2.xy);
+    colors[3] = unpack_color(input.colors_2.zw);
+    colors[4] = unpack_color(input.colors_3.xy);
+    colors[5] = unpack_color(input.colors_3.zw);
+    colors[6] = unpack_color(input.colors_4.xy);
+    colors[7] = unpack_color(input.colors_4.zw);
 
     let offsets_1: vec4<f32> = unpack_u32(input.offsets.xy);
     let offsets_2: vec4<f32> = unpack_u32(input.offsets.zw);
 
-    var offsets = array<f32, 8>(
-        offsets_1.x,
-        offsets_1.y,
-        offsets_1.z,
-        offsets_1.w,
-        offsets_2.x,
-        offsets_2.y,
-        offsets_2.z,
-        offsets_2.w,
-    );
+    var offsets: array<f32, 8>;
+    offsets[0] = offsets_1.x;
+    offsets[1] = offsets_1.y;
+    offsets[2] = offsets_1.z;
+    offsets[3] = offsets_1.w;
+    offsets[4] = offsets_2.x;
+    offsets[5] = offsets_2.y;
+    offsets[6] = offsets_2.z;
+    offsets[7] = offsets_2.w;
 
     //TODO could just pass this in to the shader but is probably more performant to just check it here
     var last_index = 7;
